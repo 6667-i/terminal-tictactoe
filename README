@@ -1,15 +1,19 @@
-// ### Simple Tic-Tac-Toe game written in C++ ###
+// ### Tic-Tac-Toe game written in C++ ###
+
 #include <iostream>
 #include <chrono>
 #include <thread>
 #include <cstdlib>
 #include <ctime>
 using namespace std;
+
 // Macros
 #define cls (cout << "\033[2J\033[;H")
 #define wait(ms) (this_thread::sleep_for(chrono::milliseconds(ms)))
+
 // Global variables
 char grid[9], winner;
+
 // Intro animation
 void intro() {
     cout << "Starting Tic-Tac-Toe game." << endl;
@@ -24,6 +28,7 @@ void intro() {
     wait(500);
     cls;
 }
+
 // Prints the board. Empty cells show their number (1-9), taken cells show X or O.
 void printGrid() {
     cout << "\n " << string(13, '-') << '\n';
@@ -34,35 +39,42 @@ void printGrid() {
     }
     cout << '\n';
 }
+
 // Checks for a winner or draw. Sets winner and returns true if the game is over.
 bool checkGameOver() {
     winner = 0;
+    
     // Check rows
     for (int i = 0; i <= 6; i += 3) {
-        if (grid[i] && grid[i] == grid[i+1] && grid[i] == grid[i+2]) {
+        if (grid[i] && grid[i] == grid[i + 1] && grid[i] == grid[i + 2]) {
             winner = grid[i];
             return true;
         }
     }
+    
     // Check columns
     for (int i = 0; i <= 2; i++) {
-        if (grid[i] && grid[i] == grid[i+3] && grid[i] == grid[i+6]) {
+        if (grid[i] && grid[i] == grid[i + 3] && grid[i] == grid[i + 6]) {
             winner = grid[i];
             return true;
         }
     }
+    
     // Check diagonals
     if (grid[4] && ((grid[4] == grid[0] && grid[4] == grid[8]) || (grid[4] == grid[2] && grid[4] == grid[6]))) {
         winner = grid[4];
         return true;
     }
+    
     // Draw: board is full and no winner
     for (int i = 0; i <= 8; i++) if (!grid[i]) return false;
     return true;
 }
+
 // AI: tries to win, blocks the human, or plays a random empty cell.
 void play(char ai) {
     char human = (ai == 'O' ? 'X' : 'O');
+    
     // 1. Try winning move
     for (int i = 0; i <= 8; i++) {
         if (!grid[i]) {
@@ -76,6 +88,7 @@ void play(char ai) {
             grid[i] = 0;
         }
     }
+    
     // 2. Block human
     for (int i = 0; i <= 8; i++) {
         if (!grid[i]) {
@@ -90,6 +103,7 @@ void play(char ai) {
             grid[i] = 0;
         }
     }
+    
     // 3. Otherwise random
     int num;
     do num = rand() % 9; while (grid[num]);
@@ -98,6 +112,7 @@ void play(char ai) {
     cout << num + 1 << flush;
     wait(1000);
 }
+
 int main() {
     intro();
     
@@ -126,14 +141,14 @@ int main() {
             if (solo && player == (startFirst ? 'O' : 'X')) play(player);
             else {
                 int position;
-                if (!(cin >> position) || position > 9 || position < 1 || grid[position-1]) {
+                if (!(cin >> position) || position > 9 || position < 1 || grid[position - 1]) {
                     cout << "Invalid input. Try again.";
                     cin.clear();
                     cin.ignore(100, '\n');
-                    wait(1000);
                     i--;
+                    wait(1000);
                 } else {
-                    grid[position-1] = player;
+                    grid[position - 1] = player;
                     cin.ignore(100, '\n');
                 }
             }
