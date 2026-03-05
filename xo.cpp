@@ -16,6 +16,7 @@ char grid[9], winner;
 
 // intro animation
 void intro() {
+    cls;
     cout << "starting." << flush;
     wait(500);
     cls;
@@ -25,7 +26,7 @@ void intro() {
     cout << "starting..." << endl;
     wait(500);
     cout << "welcome to terminal XO." << flush;
-    wait(500);
+    wait(1000);
     cls;
 }
 
