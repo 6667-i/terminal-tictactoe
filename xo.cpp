@@ -20,9 +20,9 @@ using namespace std;
 
 // ---------- globals ----------------------------------------------------------
 
+bool solo, startFirst;
 char grid[9], winner;
 int winLine[3] = {-1, -1, -1};
-bool solo, startFirst;
 
 // ---------- functions --------------------------------------------------------
 
@@ -44,19 +44,15 @@ void intro() {
 
 void setup() {
     // configure game mode and turn order
-    solo = true; startFirst = true;
     string input;
-
     cout << "Play against AI? [Y/n] ";
     getline(cin, input);
-    if (input == "n" || input == "N") {
-        solo = false;
-    } else {
+    solo = !(input == "n" || input == "N");
+    if (solo) {
         cout << "Start first? [Y/n] ";
         getline(cin, input);
-        if (input == "n" || input == "N") startFirst = false;
+        startFirst = !(input == "n" || input == "N");
     }
-
     cls;
 }
 
@@ -118,17 +114,17 @@ bool humanMove(char player) {
     
     // read and validate input
     int position;
-    if (!(cin >> position) || position > 9 || position < 1 || grid[position - 1]) {
+    bool valid = (cin >> position) && position >= 1 && position <= 9 && !grid[position - 1];
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    if (!valid) {
         cout << yellow << "Invalid input, try again." << reset;
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         wait(1000);
         return false;
     }
 
-    // apply move and clear input buffer
+    // apply move
     grid[position - 1] = player;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     return true;
 }
 
@@ -213,11 +209,8 @@ int main() {
             char player = (i % 2 == 0 ? 'X' : 'O');
 
             // determine who plays (ai or human?)
-            if (solo && player == (startFirst ? 'O' : 'X')) {
-                aiMove(player);
-            } else {
-                if (!humanMove(player)) i--;
-            }
+            if (solo && player == (startFirst ? 'O' : 'X')) aiMove(player);
+            else if (!humanMove(player)) i--;
 
             cls;
         }
