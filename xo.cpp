@@ -12,10 +12,10 @@ using namespace std;
 #define wait(ms) this_thread::sleep_for(chrono::milliseconds(ms))
 #define dots for (int i = 0; i < 3; i++, wait(500)) cout << '.'
 #define cls cout << "\e[2J\e[H"
-#define red "\e[31m"
-#define blue "\e[34m"
-#define purple "\e[35m"
-#define yellow "\e[33m"
+#define red "\e[91m"
+#define blue "\e[96m"
+#define purple "\e[95m"
+#define yellow "\e[93m"
 #define reset "\e[m"
 
 // ---------- globals ----------------------------------------------------------
@@ -35,7 +35,7 @@ void init() {
 
 void intro() {
     // play startup sequence
-    cout << "Starting";
+    cout << "Loading";
     dots;
     cout << "\nWelcome to terminal XO.";
     wait(1000);
@@ -47,7 +47,7 @@ void setup() {
     solo = true; startFirst = true;
     string input;
 
-    cout << "Play solo? [Y/n] ";
+    cout << "Play against AI? [Y/n] ";
     getline(cin, input);
     if (input == "n" || input == "N") {
         solo = false;
@@ -114,6 +114,8 @@ bool checkGameOver() {
 }
 
 bool humanMove(char player) {
+    cout << (player == 'X' ? red : blue) << player << reset << "'s turn. [1-9] ";
+    
     // read and validate input
     int position;
     if (!(cin >> position) || position > 9 || position < 1 || grid[position - 1]) {
@@ -130,33 +132,31 @@ bool humanMove(char player) {
     return true;
 }
 
-void aiMove(char ai) {
-    // determine human's character
-    char human = (ai == 'O' ? 'X' : 'O');
+void aiMove(char player) {
+    cout << (player == 'X' ? red : blue) << player << reset << "'s turn. [AI] ";
+    
+    // determine opponent's character
+    char opponent = (player == 'O' ? 'X' : 'O');
 
     // 1. check if ai can win on this turn
     for (int i = 0; i < 9; i++) {
         if (!grid[i]) {
-            grid[i] = ai;
+            grid[i] = player;
             if (checkGameOver() && winner) {
                 dots;
-                cout << ' ' << i + 1;
-                wait(500);
                 return;
             }
             grid[i] = 0;
         }
     }
 
-    // 2. check if human can win on next turn and block them
+    // 2. check if opponent can win on next turn and block them
     for (int i = 0; i < 9; i++) {
         if (!grid[i]) {
-            grid[i] = human;
+            grid[i] = opponent;
             if (checkGameOver() && winner) {
-                grid[i] = ai;
+                grid[i] = player;
                 dots;
-                cout << ' ' << i + 1;
-                wait(500);
                 return;
             }
             grid[i] = 0;
@@ -166,10 +166,8 @@ void aiMove(char ai) {
     // 3. pick a random empty cell as a fallback
     int num;
     do num = rand() % 9; while (grid[num]);
-    grid[num] = ai;
+    grid[num] = player;
     dots;
-    cout << ' ' << num + 1;
-    wait(500);
 }
 
 bool gameEnd() {
@@ -213,14 +211,11 @@ int main() {
 
             // determine current player
             char player = (i % 2 == 0 ? 'X' : 'O');
-            cout << (player == 'X' ? red : blue) << player << reset;
 
             // determine who plays (ai or human?)
             if (solo && player == (startFirst ? 'O' : 'X')) {
-                cout << "'s turn. [AI] ";
                 aiMove(player);
             } else {
-                cout << "'s turn. [1-9] ";
                 if (!humanMove(player)) i--;
             }
 
