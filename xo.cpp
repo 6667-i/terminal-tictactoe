@@ -20,9 +20,8 @@ using namespace std;
 
 // ---------- globals ----------------------------------------------------------
 
-int players, scoreX = 0, scoreO = 0, draws = 0, winLine[3] = {-1, -1, -1};
-bool humanFirst;
-char grid[9], winner;
+char human, first, second, grid[9], winner;
+int players, scoreX, scoreO, draws, winLine[3] = {-1, -1, -1};
 
 // ---------- functions --------------------------------------------------------
 
@@ -43,7 +42,7 @@ void intro() {
 }
 
 void setup() {
-    // prompt to change settings after initial setup
+    // ask to change initial configuration
     string input;
     if (players) {
         cout << "Change settings? [y/N] ";
@@ -51,16 +50,30 @@ void setup() {
         cls;
         if (!(input == "y" || input == "Y")) return;
     }
-    
-    // configure game mode and turn order
+
+    // configure settings
+    cout << "Choose your character. [" << red << 'X' << reset << '/' << blue << 'O' << reset << "] ";
+    getline(cin, input);
+    if (input == "o" || input == "O") human = 'O';
+    else if (input == "x" || input == "X") human = 'X';
+    else {
+        cout << yellow << "Invalid input, try again." << reset;
+        wait(1000);
+        players = 0;
+        cls;
+        setup();
+        return;
+    }
+
+    cout << "Start first? [Y/n] ";
+    getline(cin, input);
+    first = (input == "n" || input == "N") ? (human == 'X' ? 'O' : 'X') : human;
+    second = (first == 'X' ? 'O' : 'X');
+
     cout << "Play against AI? [Y/n] ";
     getline(cin, input);
     players = ((input == "n" || input == "N") ? 2 : 1);
-    if (players == 1) {
-        cout << "Start first? [Y/n] ";
-        getline(cin, input);
-        humanFirst = !(input == "n" || input == "N");
-    }
+
     cls;
 }
 
@@ -87,7 +100,7 @@ bool gameOver() {
             return true;
         }
     }
-    
+
     // check columns
     for (int i = 0; i < 3; i++) {
         if (grid[i] && grid[i] == grid[i + 3] && grid[i] == grid[i + 6]) {
@@ -96,7 +109,7 @@ bool gameOver() {
             return true;
         }
     }
-    
+
     // check diagonals
     if (grid[4]) {
         if (grid[4] == grid[0] && grid[4] == grid[8]) {
@@ -151,12 +164,11 @@ void aiMove(char player) {
             grid[i] = 0;
         }
     }
-    
-    // 2. block opponent if they can win
-    char opponent = (player == 'O' ? 'X' : 'O');
+
+    // 2. block human if they can win
     for (int i = 0; i < 9; i++) {
         if (!grid[i]) {
-            grid[i] = opponent;
+            grid[i] = human;
             if (gameOver() && winner) {
                 grid[i] = player;
                 return;
@@ -164,7 +176,7 @@ void aiMove(char player) {
             grid[i] = 0;
         }
     }
-    
+
     // 3. pick a random empty cell as a fallback
     int num;
     do num = rand() % 9; while (grid[num]);
@@ -177,17 +189,17 @@ bool endRound() {
     else if (winner == 'O') scoreO++;
     else draws++;
 
-    // display final state and winner or draw message
+    // show result
     printState();
     winner ? cout << (winner == 'X' ? red : blue) << winner << reset << " won the game. " : cout << "It's a " << purple << "draw" << reset << ". ";
     wait(1000);
 
-    // prompt user to continue playing
+    // prompt to play again
     cout << "Play again? [Y/n] ";
     string input;
     getline(cin, input);
-    
-    // reset grid for the next round
+
+    // reset for the next round
     cls;
     for (char &x : grid) x = 0;
     return (input == "n" || input == "N");
@@ -197,15 +209,15 @@ void loop() {
     // main game loop
     do {
         setup();
-        
+
         for (int i = 0; !gameOver(); i++) {
             printState();
 
             // determine current player
-            char player = (i % 2 == 0 ? 'X' : 'O');
+            char player = (i % 2 == 0 ? first : second);
 
-            // determine who plays (ai or human?)
-            if (players == 1 && player == (humanFirst ? 'O' : 'X')) aiMove(player);
+            // determine who plays (ai or human)
+            if (players == 1 && player != human) aiMove(player);
             else if (!humanMove(player)) i--;
 
             cls;
