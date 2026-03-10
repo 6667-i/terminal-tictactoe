@@ -25,16 +25,11 @@ int mode, scoreX, scoreO, draws, winCells[3] = {-1, -1, -1};
 
 // ---------- functions --------------------------------------------------------
 
-void init() {
-    // clear screen, seed rng, and disable output buffering
+void startup() {
+    // initialize program and play startup sequence
     cls;
     srand(chrono::steady_clock::now().time_since_epoch().count());
-    cout << unitbuf;
-}
-
-void intro() {
-    // play startup sequence
-    cout << "Loading";
+    cout << unitbuf << "Loading";
     dots;
     cout << "\nWelcome to terminal XO.";
     wait(1000);
@@ -225,7 +220,7 @@ void loop() {
     } while (!gameOver());
 }
 
-void goodbye() {
+void shutdown() {
     // play shutdown sequence
     cout << "Goodbye.";
     wait(1000);
@@ -235,8 +230,7 @@ void goodbye() {
 // ---------- main -------------------------------------------------------------
 
 int main() {
-    init();
-    intro();
+    startup();
     loop();
-    goodbye();
+    shutdown();
 }
