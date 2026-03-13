@@ -223,7 +223,7 @@ void loop() {
     do {
         setup();
         
-        // display state and take determine player
+        // inner turn loop
         for (int i = 0; !checkstate(); i++) {
             printstate();
             char player = (i % 2 == 0 ? first : second);
